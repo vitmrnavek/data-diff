@@ -149,12 +149,12 @@ class DbtParser:
             where_filter=where_filter, include_columns=include_columns, exclude_columns=exclude_columns
         )
 
-    def get_models(self, dbt_selection: Optional[str] = None):
+    def get_models(self, dbt_selection: Optional[str] = None,state: Optional[str] = None):
         dbt_version = parse_version(self.dbt_version)
         if dbt_selection:
             if (dbt_version.major, dbt_version.minor) >= (1, 5):
                 if self.dbt_runner:
-                    return self.get_dbt_selection_models(dbt_selection)
+                    return self.get_dbt_selection_models(dbt_selection,state)
                 # edge case if running data-diff from a separate env than dbt (likely local development)
                 else:
                     raise DataDiffDbtCoreNoRunnerError(
@@ -167,11 +167,10 @@ class DbtParser:
         else:
             return self.get_run_results_models()
 
-    def get_dbt_selection_models(self, dbt_selection: str) -> List[str]:
+    def get_dbt_selection_models(self, dbt_selection: str, state:str) -> List[str]:
         # log level and format settings needed to prevent dbt from printing to stdout
         # ls command is used to get the list of model unique_ids
-        results = self.dbt_runner.invoke(
-            [
+        dbt_run_config = [
                 "--log-format",
                 "json",
                 "--log-level",
@@ -188,7 +187,11 @@ class DbtParser:
                 "--project-dir",
                 self.project_dir,
             ]
-        )
+        if state:
+            dbt_run_config.extend(["--state", state])
+
+        results = self.dbt_runner.invoke(dbt_run_config)
+
         if results.exception:
             raise results.exception
 

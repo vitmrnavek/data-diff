@@ -76,7 +76,7 @@ def dbt_diff(
     diff_threads = []
     set_entrypoint_name("CLI-dbt")
     dbt_parser = DbtParser(profiles_dir_override, project_dir_override, state)
-    models = dbt_parser.get_models(dbt_selection)
+    models = dbt_parser.get_models(dbt_selection,state)
     config = dbt_parser.get_datadiff_config()
     _initialize_events(dbt_parser.dbt_user_id, dbt_parser.dbt_version, dbt_parser.dbt_project_id)
 
