@@ -110,7 +110,8 @@ class DbtParser:
         self.dev_manifest_obj = self.get_manifest_obj(self.project_dir / MANIFEST_PATH)
         self.prod_manifest_obj = None
         if state:
-            self.prod_manifest_obj = self.get_manifest_obj(Path(state))
+            manifest_path = state + "/manifest.json"
+            self.prod_manifest_obj = self.get_manifest_obj(Path(manifest_path))
 
         self.dbt_user_id = self.dev_manifest_obj.metadata.user_id
         self.dbt_version = self.dev_manifest_obj.metadata.dbt_version
